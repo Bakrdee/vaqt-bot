@@ -1,25 +1,28 @@
-from telethon.sync import TelegramClient
-from telethon.tl.functions.account import UpdateProfileRequest
+import asyncio
+import os
 from pytz import timezone
 from datetime import datetime
-import time
+from telethon import TelegramClient
+from telethon.tl.functions.account import UpdateProfileRequest
 
-api_id = 28281539
-api_hash = 'ca47bc35c67929f9a3a81aeaa20decfe'
-phone_number = '+998930015305'
+# Muhit o'zgaruvchilaridan o'qiladi (Render uchun)
+api_id = int(os.environ['API_ID'])
+api_hash = os.environ['API_HASH']
+session = os.environ['SESSION']
 
 # O'zbekiston soat zonasi
 tz = timezone('Asia/Tashkent')
 
-# Telegram sessiyasini ishga tushirish
-with TelegramClient('abubakr', api_id, api_hash) as client:
-    client.start(phone=phone_number)
+async def main():
+    async with TelegramClient(session, api_id, api_hash) as client:
+        while True:
+            now = datetime.now(tz).strftime("%H:%M")
+            await client(UpdateProfileRequest(
+                first_name=f"АбуБакр | {now}",
+                last_name=""
+            ))
+            print(f"Yangilandi: АбуБакр | {now}")
+            await asyncio.sleep(45)
 
-    while True:
-        now = datetime.now(tz).strftime("%H:%M")
-        client(UpdateProfileRequest(
-            first_name=f"АбуБакр | {now}",  # Nik + vaqt
-            last_name=""
-        ))
-        print(f"Yangilandi: АбуБакр | {now}")
-        time.sleep(45)  # 45 soniyada yangilanadi
+asyncio.run(main())
+
